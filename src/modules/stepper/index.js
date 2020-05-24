@@ -1,12 +1,15 @@
 import React, { Fragment, useState, useMemo, Suspense, lazy } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { default as MuiStepper} from '@material-ui/core/Stepper';
-import { Step, StepLabel, Button } from '@material-ui/core';
+import { Step, StepLabel } from '@material-ui/core';
 
 import { ErrorBoundary } from '../../components/ErrorBoundary';
+import { getUserDetails, getUserHistory } from "../../api";
+import { Button } from '../../components/Button';
 
 import { InitialStep } from './InitialStep';
 const UserDetails = lazy(() => import('./UserDetails'));
+const UserHistory = lazy(() => import('./UserHistory'));
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -26,35 +29,42 @@ const useStyles = makeStyles(theme => ({
 export default function Stepper() {
   const classes = useStyles();
   const [activeStep, setActiveStep] = useState(0);
+  const [data, setData] = useState(null);
 
   const steps = ['Initial Step', 'User details', 'History', 'Last step'];
+  const stepsResources = [() => {}, getUserDetails, getUserHistory, () => {}];
 
-  const handleNext = ()  => {
+  const handleNext = () => {
     const nextStep = activeStep + 1;
-
+    const resourceMethod = stepsResources[nextStep];
+    
     setActiveStep(nextStep);
+    setData(resourceMethod());
   };
 
   const handleBack = () => {
     const prevStep = activeStep - 1;
+    const resourceMethod = stepsResources[prevStep];
 
     setActiveStep(prevStep);
+    setData(resourceMethod());
   };
+
 
   const getStepContent = useMemo(() => {
     switch (activeStep) {
       case 0:
         return <InitialStep />
       case 1:
-        return <UserDetails />;
+        return <UserDetails data={data} />;
       case 2:
-        return "History step"
+        return <UserHistory data={data} />;
       case 3:
         return 'Congrats! All steps are done';
       default:
         return 'Unknown step';
     }
-  }, [activeStep]);
+  }, [activeStep, data]);
 
   return (
     <Fragment>
@@ -76,7 +86,12 @@ export default function Stepper() {
           </ErrorBoundary>
         </div>
         <div>
-          <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
+          <Button 
+            disabled={activeStep === 0} 
+            onClick={handleBack} 
+            className={classes.button}
+            timeoutMs={4000}
+          >
             Back
           </Button>
 
@@ -86,6 +101,7 @@ export default function Stepper() {
             onClick={handleNext}
             className={classes.button}
             disabled={activeStep === steps.length - 1}
+            timeoutMs={4000}
           >
             Next
           </Button>

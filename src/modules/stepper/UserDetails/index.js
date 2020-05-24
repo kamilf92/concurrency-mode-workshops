@@ -2,7 +2,7 @@ import React, { Suspense, Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
 
-import { getUserDetails, getAccountDetails } from '../../../api';
+import { getAccountDetails } from '../../../api';
 
 const useStyles = makeStyles(theme => ({
   image: {
@@ -30,10 +30,8 @@ const AccountDetails = ({ account }) => {
   );
 }
 
-const userDetails = getUserDetails();
-
 export default function UserDetails({ data }) {
-  const user = userDetails.read();
+  const user = data.read();
   const account = getAccountDetails({ accountId: user.accountId });
   const classes = useStyles();
 
