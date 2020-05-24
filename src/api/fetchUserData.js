@@ -18,7 +18,7 @@ export function fetchUser() {
         sex: 'male',
         image: 'https://www.petmd.com/sites/default/files/Acute-Dog-Diarrhea-47066074.jpg'
       });
-    }, 1000);
+    }, 2000);
   });
 };
 

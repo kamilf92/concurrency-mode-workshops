@@ -1,9 +1,12 @@
-import React, { Fragment, useState, useMemo } from 'react';
+import React, { Fragment, useState, useMemo, Suspense, lazy } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { default as MuiStepper} from '@material-ui/core/Stepper';
 import { Step, StepLabel, Button } from '@material-ui/core';
 
+import { ErrorBoundary } from '../../components/ErrorBoundary';
+
 import { InitialStep } from './InitialStep';
+const UserDetails = lazy(() => import('./UserDetails'));
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -43,7 +46,7 @@ export default function Stepper() {
       case 0:
         return <InitialStep />
       case 1:
-        return "Details step";
+        return <UserDetails />;
       case 2:
         return "History step"
       case 3:
@@ -66,7 +69,11 @@ export default function Stepper() {
       </MuiStepper>
       <Fragment>
         <div className={classes.content}>
-          {getStepContent}
+          <ErrorBoundary fallback="Could not fetch data">
+            <Suspense fallback="Loading step...">
+              {getStepContent}
+            </Suspense>
+          </ErrorBoundary>
         </div>
         <div>
           <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
